@@ -13,16 +13,7 @@ namespace RequireJsNet.Configuration
 	{
 		public static IConfigWriter CreateWriter(string path, ConfigLoaderOptions options)
 		{
-			var type = ConfigHelpers.GetReaderType(path);
-			switch (type)
-			{
-				case ConfigType.Xml:
-					return new XmlWriter(path, options);
-				case ConfigType.Json:
-					return new JsonWriter(path, options);
-				default:
-					throw new Exception("Unknown config writer.");
-			}
+			return new JsonWriter(path, options);
 		}
 	}
 }

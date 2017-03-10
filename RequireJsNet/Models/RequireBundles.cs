@@ -9,8 +9,7 @@ using System.Collections.Generic;
 
 namespace RequireJsNet.Models
 {
-    public class RequireBundles
+    public class RequireBundles : Dictionary<string, List<string>>
     {
-        public List<RequireBundle> BundleEntries { get; set; }
     }
 }

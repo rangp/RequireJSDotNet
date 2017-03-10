@@ -19,7 +19,7 @@ namespace RequireJsNet
 
         private bool loadOverrides = true;
 
-        private IList<string> configPaths = new[] { "~/RequireJS.json" };
+        private IList<string> configPaths = new[] { "~/build.js" };
 
         public RequireRendererConfiguration()
         {

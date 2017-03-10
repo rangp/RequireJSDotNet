@@ -13,16 +13,7 @@ namespace RequireJsNet.Configuration
     {
         public static IConfigReader CreateReader(string path, ConfigLoaderOptions options)
         {
-            var type = ConfigHelpers.GetReaderType(path);
-            switch (type)
-            {
-                    case ConfigType.Xml:
-                        return new XmlReader(path, options);
-                    case ConfigType.Json:
-                        return new JsonReader(path, options);
-                    default:
-                    throw new Exception("Unknown config reader.");
-            }
+            return new JsonReader(path, options);
         }
     }
 }

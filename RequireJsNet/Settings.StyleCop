@@ -1,9 +1,0 @@
-<StyleCopSettings Version="105">
-  <GlobalSettings>
-    <CollectionProperty Name="RecognizedWords">
-      <Value>js</Value>
-      <Value>requirejs</Value>
-      <Value>RequireJs</Value>
-    </CollectionProperty>
-  </GlobalSettings>
-</StyleCopSettings>

@@ -43,14 +43,9 @@ namespace RequireJsNet.Configuration
 				obj.map = GetMap(conf.Map.MapElements);
 			}
 
-			if (conf.Bundles != null && conf.Bundles.BundleEntries != null && conf.Bundles.BundleEntries.Any())
+			if (conf.Bundles != null && conf.Bundles.Any())
 			{
-				obj.bundles = GetBundles(conf.Bundles.BundleEntries);
-			}
-
-			if (conf.AutoBundles != null && conf.AutoBundles.Bundles != null && conf.AutoBundles.Bundles.Any())
-			{
-				obj.autoBundles = GetAutoBundles(conf.AutoBundles.Bundles);
+				obj.bundles = conf.Bundles;
 			}
 
 			File.WriteAllText(
@@ -113,100 +108,6 @@ namespace RequireJsNet.Configuration
 		public dynamic GetMap(List<RequireMapElement> mapElements)
 		{
 			return mapElements.ToDictionary(r => r.For, r => r.Replacements.ToDictionary(x => x.OldKey, x => x.OldKey));
-		}
-
-		public dynamic GetBundles(List<RequireBundle> bundles)
-		{
-			return bundles.ToDictionary(
-				r => r.Name,
-				r =>
-					{
-						dynamic obj = new ExpandoObject();
-
-						if (r.IsVirtual)
-						{
-							obj.isVirtual = true;
-						}
-
-						if (!string.IsNullOrEmpty(r.OutputPath))
-						{
-							obj.outputPath = r.OutputPath;
-						}
-
-						if (r.BundleItems != null && r.BundleItems.Any())
-						{
-							obj.items = r.BundleItems.Select(
-								x =>
-									{
-										if (string.IsNullOrEmpty(x.CompressionType)
-											|| x.CompressionType.ToLower() == "standard")
-										{
-											return (object)x.ModuleName;
-										}
-
-										return new { compressionType = x.CompressionType, path = x.ModuleName };
-									}).ToList();
-						}
-
-						if (r.Includes != null && r.Includes.Any())
-						{
-							obj.includes = r.Includes;
-						}
-
-						return obj;
-					});
-		}
-
-		public dynamic GetAutoBundles(List<AutoBundle> autoBundles)
-		{
-			return autoBundles.ToDictionary(
-				r => r.Id,
-				r =>
-					{
-						dynamic obj = new ExpandoObject();
-
-						if (!string.IsNullOrEmpty(r.OutputPath))
-						{
-							obj.outputPath = r.OutputPath;
-						}
-
-						if (r.Includes != null && r.Includes.Any())
-						{
-							obj.include = AutoBundleContentSelector(r.Includes);
-						}
-
-						if (r.Excludes != null && r.Excludes.Any())
-						{
-							obj.exclude = AutoBundleContentSelector(r.Excludes);
-						}
-
-						return obj;
-					});
-		}
-
-		public IEnumerable<dynamic> AutoBundleContentSelector(List<AutoBundleItem> items)
-		{
-			return items.Select(
-								x =>
-								{
-									dynamic included = new ExpandoObject();
-									if (!string.IsNullOrEmpty(x.Directory))
-									{
-										included.directory = x.Directory;
-									}
-
-									if (!string.IsNullOrEmpty(x.File))
-									{
-										included.file = x.File;
-									}
-
-									if (!string.IsNullOrEmpty(x.BundleId))
-									{
-										included.bundleId = x.BundleId;
-									}
-
-									return included;
-								}).ToList();
 		}
 	}
 }

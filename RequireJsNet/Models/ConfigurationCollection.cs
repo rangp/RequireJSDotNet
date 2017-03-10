@@ -27,9 +27,6 @@ namespace RequireJsNet.Models
         [JsonProperty(PropertyName = "bundles")]
         public RequireBundles Bundles { get; set; }
 
-        [JsonProperty(PropertyName = "autoBundles")]
-        public AutoBundles AutoBundles { get; set; }
-
         [JsonProperty(PropertyName = "overrides")]
         public List<CollectionOverride> Overrides { get; set; }
     }

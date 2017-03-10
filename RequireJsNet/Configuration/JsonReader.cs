@@ -54,6 +54,13 @@ namespace RequireJsNet.Configuration
 				text = fileReader.ReadFile(path);
 			}
 
+            // Using the requirejs build.js file means cutting off the () around the configuration
+            // so that the deserialization can work
+            if(text.StartsWith("({") && text.EndsWith("})"))
+            {
+                text = text.Substring(1, text.Count() -2);
+            }
+
 			var collection = new ConfigurationCollection();
 			var deserialized = (JObject)JsonConvert.DeserializeObject(text);
 			collection.FilePath = Path;
@@ -66,7 +73,6 @@ namespace RequireJsNet.Configuration
 				collection.Bundles = GetBundles(deserialized);
 			}
 
-			collection.AutoBundles = GetAutoBundles(deserialized);
 			collection.Overrides = GetOverrides(deserialized);
 
 
@@ -139,62 +145,9 @@ namespace RequireJsNet.Configuration
 		private RequireBundles GetBundles(JObject document)
 		{
 			var bundles = new RequireBundles();
-			bundles.BundleEntries = new List<RequireBundle>();
 			if (document != null && document["bundles"] != null)
 			{
-				bundles.BundleEntries = document["bundles"].Select(
-					r =>
-						{
-							var bundle = new RequireBundle();
-							var prop = (JProperty)r;
-							bundle.Name = prop.Name;
-							if (prop.Value is JArray)
-							{
-								bundle.IsVirtual = false;
-								var arr = prop.Value as JArray;
-								bundle.BundleItems = arr.Select(x => new BundleItem { ModuleName = x.ToString() } ).ToList();    
-								
-							}
-							else if(prop.Value is JObject)
-							{
-								var obj = prop.Value as JObject;
-								bundle.OutputPath = obj["outputPath"] != null ? obj["outputPath"].ToString() : null;
-								var inclArr = obj["includes"] as JArray;
-								if (inclArr != null)
-								{
-									bundle.Includes = inclArr.Select(x => x.ToString()).ToList();
-								}
-
-								var itemsArr = obj["items"] as JArray;
-								if (itemsArr != null)
-								{
-									bundle.BundleItems = itemsArr.Select(
-										x =>
-											{
-												var result = new BundleItem();
-												if (x is JObject)
-												{
-													result.ModuleName = x["path"] != null ? x["path"].ToString() : null;
-													result.CompressionType = x["compression"] != null ? x["compression"].ToString() : null;
-												}
-												else if (x is JValue && x.Type == JTokenType.String)
-												{
-													result.ModuleName = x.ToString();
-												}
-
-												return result;
-											}).ToList();
-								}
-
-								var isVirtual = obj["virtual"];
-								bundle.IsVirtual = isVirtual is JValue 
-													&& isVirtual.Type == JTokenType.Boolean
-													&& (bool)((JValue)isVirtual).Value;
-							}
-
-							return bundle;
-						})
-					.ToList();
+                bundles = document["bundles"].Value<RequireBundles>();
 			}
 
 			return bundles;
@@ -263,72 +216,6 @@ namespace RequireJsNet.Configuration
 			}
 
 			return overrideList;
-		}
-
-		private AutoBundles GetAutoBundles(JObject document)
-		{
-			var autoBundles = new AutoBundles();
-			autoBundles.Bundles = new List<AutoBundle>();
-			if (document != null && document["autoBundles"] != null)
-			{
-				autoBundles.Bundles = document["autoBundles"].Select(
-					r =>
-						{
-							var currentBundle = new AutoBundle();
-							var prop = (JProperty)r;
-							currentBundle.Id = prop.Name;
-							var valueObj = prop.Value as JObject;
-							if (valueObj != null)
-							{
-								currentBundle.OutputPath = valueObj["outputPath"] != null ? valueObj["outputPath"].ToString() : null;
-								currentBundle.ContainingConfig = Path;
-								currentBundle.Includes = new List<AutoBundleItem>();
-								if (valueObj["include"] != null)
-								{
-									currentBundle.Includes = valueObj["include"].Select(
-										x =>
-											{
-												var includesObj = x as JObject;
-												var inclItem = new AutoBundleItem();
-												if (includesObj == null)
-												{
-													return inclItem;
-												}
-
-												inclItem.BundleId = includesObj["bundleId"] != null ? includesObj["bundleId"].ToString() : null;
-												inclItem.File = includesObj["file"] != null ? includesObj["file"].ToString() : null;
-												inclItem.Directory = includesObj["directory"] != null ? includesObj["directory"].ToString() : null;
-												return inclItem;
-											})
-										.ToList();    
-								}
-								currentBundle.Excludes = new List<AutoBundleItem>();
-								if (valueObj["exclude"] != null)
-								{
-									currentBundle.Excludes = valueObj["exclude"].Select(
-										x =>
-										{
-											var includesObj = x as JObject;
-											var inclItem = new AutoBundleItem();
-											if (includesObj == null)
-											{
-												return inclItem;
-											}
-
-											inclItem.BundleId = includesObj["bundleId"] != null ? includesObj["bundleId"].ToString() : null;
-											inclItem.File = includesObj["file"] != null ? includesObj["file"].ToString() : null;
-											inclItem.Directory = includesObj["directory"] != null ? includesObj["directory"].ToString() : null;
-											return inclItem;
-										})
-										.ToList();    
-								}
-							}
-
-							return currentBundle;
-						}).ToList();
-			}
-
-			return autoBundles;
 		}
 	}
 }
