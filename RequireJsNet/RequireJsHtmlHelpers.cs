@@ -80,17 +80,21 @@ namespace RequireJsNet
 			var loader = new ConfigLoader(processedConfigs, config.Logger, new ConfigLoaderOptions { LoadOverrides = config.LoadOverrides });
 			var resultingConfig = loader.Get();
 
-			var overrider = new ConfigOverrider();
-			overrider.Override(resultingConfig, PathHelper.ToModuleName(entryPointString));
-
 			var locale = config.LocaleSelector(view);
+
+            var paths = resultingConfig.Paths.PathList as IEnumerable<RequirePath>;
+
+            if (config.LoadOverrides)
+            {
+                paths = paths.Concat(resultingConfig.BundlePaths.PathList);
+            }
 
 			var outputConfig = new JsonRequireOutput
 			{
 				BaseUrl = config.BaseUrl,
 				Locale = locale,
 				UrlArgs = config.UrlArgs,
-				Paths = resultingConfig.Paths.PathList.ToDictionary(r => r.Key, r => r.Value),
+				Paths = paths.ToDictionary(r => r.Key, r => r.Value),
 				Shim = resultingConfig.Shim.ShimEntries.ToDictionary(
 						r => r.For,
 						r => new JsonRequireDeps
@@ -98,9 +102,7 @@ namespace RequireJsNet
 									 Dependencies = r.Dependencies.Select(x => x.Dependency).ToList(),
 									 Exports = r.Exports
 								 }),
-				Map = resultingConfig.Map.MapElements.ToDictionary(
-						 r => r.For,
-						 r => r.Replacements.ToDictionary(x => x.OldKey, x => x.NewKey))
+                Bundles = resultingConfig.Bundles,
 			};
 
 			config.ProcessConfig(outputConfig);

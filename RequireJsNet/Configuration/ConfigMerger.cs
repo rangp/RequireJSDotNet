@@ -25,13 +25,12 @@ namespace RequireJsNet.Configuration
             this.options = options;
             this.collections = collections;
             finalCollection.Paths = new RequirePaths();
+            finalCollection.BundlePaths = new RequirePaths();
             finalCollection.Paths.PathList = new List<RequirePath>();
+            finalCollection.BundlePaths.PathList = new List<RequirePath>();
             finalCollection.Shim = new RequireShim();
             finalCollection.Shim.ShimEntries = new List<ShimEntry>();
-            finalCollection.Map = new RequireMap();
-            finalCollection.Map.MapElements = new List<RequireMapElement>();
             finalCollection.Bundles = new RequireBundles();
-            finalCollection.Overrides = new List<CollectionOverride>();
         }
 
         public ConfigurationCollection GetMerged()
@@ -48,29 +47,15 @@ namespace RequireJsNet.Configuration
                     MergeShims(coll);    
                 }
 
-                if (coll.Map != null && coll.Map.MapElements != null)
+                if (coll.BundlePaths != null && coll.BundlePaths.PathList != null)
                 {
-                    MergeMaps(coll);    
-                }
-
-                if (options.LoadOverrides && coll.Overrides != null)
-                {
-                    this.MergeOverrides(coll);
+                    MergeBundlePaths(coll);    
                 }
             }
 
-            if (options.ProcessBundles)
-            {
-                this.MergeBundles(this.collections);    
-            }
+            this.MergeBundles(this.collections);    
             
             return finalCollection;
-        }
-
-        private void MergeOverrides(ConfigurationCollection collection)
-        {
-            var finalOverrides = finalCollection.Overrides;
-            finalOverrides.AddRange(collection.Overrides);
         }
 
         private void MergePaths(ConfigurationCollection collection)
@@ -114,23 +99,19 @@ namespace RequireJsNet.Configuration
             }
         }
 
-        private void MergeMaps(ConfigurationCollection collection)
+        private void MergeBundlePaths(ConfigurationCollection collection)
         {
-            var finalMaps = finalCollection.Map.MapElements;
-            foreach (var map in collection.Map.MapElements)
+            var finalPaths = finalCollection.BundlePaths.PathList;
+            foreach (var path in collection.BundlePaths.PathList)
             {
-                var existingKey = finalMaps.Where(r => r.For == map.For).FirstOrDefault();
-                if (existingKey != null)
+                var existing = finalPaths.Where(r => r.Key == path.Key).FirstOrDefault();
+                if (existing != null)
                 {
-                    existingKey.Replacements.AddRange(map.Replacements);
-                    existingKey.Replacements = existingKey.Replacements
-                                                        .GroupBy(r => r.OldKey)
-                                                        .Select(r => r.LastOrDefault())
-                                                        .ToList();
+                    existing.Value = path.Value;
                 }
                 else
                 {
-                    finalMaps.Add(map);
+                    finalPaths.Add(path);
                 }
             }
         }
@@ -148,10 +129,14 @@ namespace RequireJsNet.Configuration
 
         private void EnsureNoDuplicatesInBundles()
         {
+            var newBundles = new RequireBundles();
+
             foreach (var requireBundle in finalCollection.Bundles)
             {
-                finalCollection.Bundles[requireBundle.Key] = requireBundle.Value.Distinct().ToList();
+                newBundles[requireBundle.Key] = requireBundle.Value.Distinct().ToList();
             }
+
+            finalCollection.Bundles = newBundles;
         }
 
         private void MergeExistingBundles(List<ConfigurationCollection> collection)

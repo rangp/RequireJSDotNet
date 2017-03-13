@@ -9,8 +9,6 @@ namespace RequireJsNet.Configuration
 {
 	public class ConfigLoaderOptions
 	{
-		public bool ProcessBundles { get; set; }
-
 		public bool LoadOverrides { get; set; }
 	}
 }

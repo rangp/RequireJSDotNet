@@ -28,7 +28,7 @@ namespace RequireJsNet.Models
         [JsonProperty(PropertyName = "shim")]
         public Dictionary<string, JsonRequireDeps> Shim { get; set; }
 
-        [JsonProperty(PropertyName = "map")]
-        public Dictionary<string, Dictionary<string, string>> Map { get; set; }
+        [JsonProperty(PropertyName = "bundles")]
+        public Dictionary<string, List<string>> Bundles { get; set; }
     }
 }

@@ -28,19 +28,9 @@ namespace RequireJsNet.Configuration
 				obj.paths = GetPaths(conf.Paths.PathList);
 			}
 
-			if (conf.Overrides != null && conf.Overrides.Any())
-			{
-				obj.overrides = GetOverrides(conf.Overrides);
-			}
-
 			if (conf.Shim != null && conf.Shim.ShimEntries != null && conf.Shim.ShimEntries.Any())
 			{
 				obj.shim = GetShim(conf.Shim.ShimEntries);
-			}
-
-			if (conf.Map != null && conf.Map.MapElements != null && conf.Map.MapElements.Any())
-			{
-				obj.map = GetMap(conf.Map.MapElements);
 			}
 
 			if (conf.Bundles != null && conf.Bundles.Any())
@@ -55,18 +45,6 @@ namespace RequireJsNet.Configuration
 							Formatting.Indented,
 							new KeyValuePairConverter()
 							));
-		}
-
-		public dynamic GetOverrides(List<CollectionOverride> overrides)
-		{
-			return overrides.ToDictionary(
-				r => r.BundleId,
-				r =>
-				new
-					{
-						paths = r.Paths.PathList.ToDictionary(x => x.Key, x => x.Value),
-						bundledScripts = r.BundledScripts
-					});
 		}
 
 		public dynamic GetPaths(List<RequirePath> pathList)
@@ -103,11 +81,6 @@ namespace RequireJsNet.Configuration
 
 						return obj;
 					});
-		}
-
-		public dynamic GetMap(List<RequireMapElement> mapElements)
-		{
-			return mapElements.ToDictionary(r => r.For, r => r.Replacements.ToDictionary(x => x.OldKey, x => x.OldKey));
 		}
 	}
 }

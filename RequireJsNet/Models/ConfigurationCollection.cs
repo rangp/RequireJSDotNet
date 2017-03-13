@@ -18,16 +18,13 @@ namespace RequireJsNet.Models
         [JsonProperty(PropertyName = "paths")]
         public RequirePaths Paths { get; set; }
 
+        [JsonProperty(PropertyName = "bundlePaths")]
+        public RequirePaths BundlePaths { get; set; }
+
         [JsonProperty(PropertyName = "shim")]
         public RequireShim Shim { get; set; }
 
-        [JsonProperty(PropertyName = "map")]
-        public RequireMap Map { get; set; }
-
         [JsonProperty(PropertyName = "bundles")]
         public RequireBundles Bundles { get; set; }
-
-        [JsonProperty(PropertyName = "overrides")]
-        public List<CollectionOverride> Overrides { get; set; }
     }
 }
