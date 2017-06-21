@@ -103,7 +103,8 @@ namespace RequireJsNet
 									 Exports = r.Exports
 								 }),
                 Bundles = resultingConfig.Bundles,
-			};
+                WaitSeconds = config.WaitSeconds,
+            };
 
 			config.ProcessConfig(outputConfig);
 
@@ -111,7 +112,7 @@ namespace RequireJsNet
 			{
 				Locale = locale,
 				PageOptions = RequireJsOptions.GetPageOptions(view.HttpContext),
-				WebsiteOptions = RequireJsOptions.GetGlobalOptions()
+				WebsiteOptions = RequireJsOptions.GetGlobalOptions(),
 			};
 
 			config.ProcessOptions(options);
@@ -146,7 +147,6 @@ namespace RequireJsNet
                 requireEntryPointBuilder.AppendLine();
             }
 
-
 			var result = 
 				configBuilder.ToString() 
 				+ Environment.NewLine
@@ -167,6 +167,7 @@ namespace RequireJsNet
 
                 result += globalScriptCallsBuilder.ToString();
 			}
+
 			if(requireEntryPointBuilder != null)
 			{
 				result += requireEntryPointBuilder.ToString();

@@ -138,5 +138,10 @@ namespace RequireJsNet
         public Action<JsonRequireOutput> ProcessConfig { get; set; }
 
         public Action<JsonRequireOptions> ProcessOptions { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional value to modify the WaitSeconds. The default value is null so that the default setting of RequireJS is used.
+        /// </summary>
+        public int? WaitSeconds { get; set; }
     }
 }

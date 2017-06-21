@@ -30,5 +30,8 @@ namespace RequireJsNet.Models
 
         [JsonProperty(PropertyName = "bundles")]
         public Dictionary<string, List<string>> Bundles { get; set; }
+
+        [JsonProperty(PropertyName = "waitSeconds", NullValueHandling = NullValueHandling.Ignore)]
+        public int? WaitSeconds { get; set; }
     }
 }
