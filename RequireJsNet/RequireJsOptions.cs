@@ -6,6 +6,7 @@
 // http://www.gnu.org/licenses/gpl.html
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using RequireJsNet.EntryPointResolver;
@@ -23,7 +24,7 @@ namespace RequireJsNet
     {
         private const string GlobalOptionsKey = "globalOptions";
 
-	    private static Dictionary<string, object> websiteOptions;
+	    private static IDictionary<string, object> websiteOptions;
 
 	    private static bool websiteOptionsLocked = false;
 
@@ -36,25 +37,25 @@ namespace RequireJsNet
 		    websiteOptionsLocked = true;
 	    }
 
-        public static Dictionary<string, object> GetGlobalOptions()
+        public static IDictionary<string, object> GetGlobalOptions()
         {
 			if (websiteOptions == null)
             {
-				websiteOptions = new Dictionary<string, object>();
+				websiteOptions = new ConcurrentDictionary<string, object>();
             }
 
 			return websiteOptions;
         }
 
-		public static Dictionary<string, object> GetPageOptions(HttpContext context)
+		public static IDictionary<string, object> GetPageOptions(HttpContext context)
         {
-            var page = context.Items[PageOptionsKey] as Dictionary<string, object>;
+            var page = context.Items[PageOptionsKey] as IDictionary<string, object>;
             if (page == null)
             {
-                context.Items[PageOptionsKey] = new Dictionary<string, object>();
+                context.Items[PageOptionsKey] = new ConcurrentDictionary<string, object>();
             }
 
-            return (Dictionary<string, object>)context.Items[PageOptionsKey];
+            return (IDictionary<string, object>)context.Items[PageOptionsKey];
         }             
 
         public static void AddRequireJsOption(this HttpContext context, string key, object value, RequireJsOptionsScope scope = RequireJsOptionsScope.Page)
@@ -91,11 +92,11 @@ namespace RequireJsNet
         public static void AddRequireJsOption(
             this HttpContext context, 
             string key,
-            Dictionary<string, object> value,
+            IDictionary<string, object> value,
             RequireJsOptionsScope scope = RequireJsOptionsScope.Page,
             bool clearExisting = false)
         {
-            var dictToModify = new Dictionary<string, object>();
+            IDictionary<string, object> dictToModify = new ConcurrentDictionary<string, object>();
             switch (scope)
             {
                 case RequireJsOptionsScope.Page:
@@ -113,9 +114,9 @@ namespace RequireJsNet
             var existing = dictToModify.FirstOrDefault(r => r.Key == key).Value;
             if (existing != null)
             {
-                if (!clearExisting && existing is Dictionary<string, object>)
+                if (!clearExisting && existing is IDictionary<string, object>)
                 {
-                    AppendItems(existing as Dictionary<string, object>, value);
+                    AppendItems(existing as IDictionary<string, object>, value);
                 }
                 else
                 {
@@ -155,7 +156,7 @@ namespace RequireJsNet
         }
         
 
-        private static void AppendItems(Dictionary<string, object> to, Dictionary<string, object> from)
+        private static void AppendItems(IDictionary<string, object> to, IDictionary<string, object> from)
         {
             foreach (var item in from)
             {

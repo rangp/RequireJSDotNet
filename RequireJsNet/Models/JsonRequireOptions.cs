@@ -17,9 +17,9 @@ namespace RequireJsNet.Models
         public string Locale { get; set; }
 
         [JsonProperty(PropertyName = "pageOptions")]
-        public Dictionary<string, object> PageOptions { get; set; }
+        public IDictionary<string, object> PageOptions { get; set; }
 
         [JsonProperty(PropertyName = "websiteOptions")]
-        public Dictionary<string, object> WebsiteOptions { get; set; }
+        public IDictionary<string, object> WebsiteOptions { get; set; }
     }
 }
